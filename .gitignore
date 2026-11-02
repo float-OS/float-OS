@@ -1,0 +1,16 @@
+# Secrets & credentials
+.env
+*.env
+tokens.json
+*.token
+
+# Browser profiles & caches
+browser-profile/
+.chrome-profile/
+Singleton*
+lockfile
+
+# Scratch & temporary test scripts
+scratch/
+*.mjs
+*.log
