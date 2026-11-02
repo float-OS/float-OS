@@ -4,7 +4,7 @@
 
 ---
 
-# 你好，我是艾丹·万斯（`@float-OS`）🛠️
+# 你好，我是 Aidan Vance（`@float-OS`）🛠️
 
 ```text
   _   _             _             ___  ____  
@@ -13,82 +13,58 @@
  |  _  |  __/ |_| | | || (_) |   | |_| |___) |
  |_| |_|\___|\__, |  \__\___/_____\___/|____/ 
              |___/         |_____|            
-  “如果它不能在脱离网线的纯粹硅片上独立运转，那它就只是一项服务，而非一个程序。”
+  "If it cannot run on cold silicon without a network cable, it is a service, not a program."
 ```
 
-我是一名常驻挪威特隆赫姆的底层系统软件工程师与硬件极客。白天，我设计低延迟遥测流水线与确定性实时通信模块；夜晚，我构建基于权能（capability）的实验性微内核、零堆分配音频合成器以及小巧可靠的命令行工具。
+我是一名定居在挪威特隆赫姆的资深系统软件工程师。过去十年间，我主要专注于超低延迟遥测管线、确定现实时通信协议以及高可靠系统架构设计。工作之余，我致力于构建基于能力的微内核、零内存分配模块化音频 DSP 引擎以及极简命令行工具。
 
-我崇尚敬畏内存、在高负载下表现可预测，并能比短暂的技术潮流框架更长久存活的软件。
+我坚持从第一性原理出发进行设计：严苛的内存边界、无数据竞争的确定性并发、与硬件 CPU 缓存的机械共鸣（Mechanical Sympathy），以及超越浮躁技术潮流的扎实工程实践。
 
 ---
 
-## 🧭 工程哲学
+## 🧭 核心工程设计准则
 
-- **热路径零动态分配（Zero Allocation in the Hot Path）**：在核心内层循环中调用动态堆分配器，在给出不可辩驳的理由之前，一律视为架构设计缺陷。
-- **可预测延迟高于峰值吞吐量**：一个能处理 100,000 req/s 但伴随不可控 2 秒长尾延迟的系统，在真实的物理控制场景下是完全不可用的。
-- **机械同理心（Mechanical Sympathy）**：在归咎于编译器之前，先搞清楚缓存行如何对齐、分支预测器如何猜测，以及内存控制器的瓶颈究竟卡在哪里。
-- **离线优先与自包含**：所有工具必须能在隔离的气隙构建环境中完全编译，并且在不向外部云端回传任何遥测数据的情况下优雅运行。
+- **核心执行路径零内存分配（Zero Allocation in Hot Path）**：高频循环内部的动态堆内存分配，在从数学和逻辑上被证明不可避免之前，一律视为架构设计缺陷。
+- **确定性并发与无数据竞争**：避免过度依赖共享锁，全面拥抱无锁环形缓冲区、SPSC 单生产者单消费者队列以及基于能力的隔离消息传递机制。
+- **可预测延迟优于盲目峰值吞吐**：即便系统每秒可处理 10 万次请求，若尾部延迟（Tail Latency）不可控，在精密物理控制与遥测系统中仍属于严重缺陷。
+- **机械共鸣（Mechanical Sympathy）**：不依赖编译器的臆测，在系统设计初始阶段便精细考量 L1/L2 缓存行对齐、分支预测器模式与总线带宽瓶颈。
+- **原生安全设计（Secure-by-Design）**：严密界限隔离、常数时间（Constant-time）密码学运算、无外部网络依赖的封闭可重现构建。
 
 ---
 
 ## 🚀 核心开源项目
 
-| 项目 | 专注领域 | 语言与技术栈 | 状态 |
+| 项目 | 领域 | 架构与技术栈 | 当前状态 |
 | :--- | :--- | :--- | :--- |
-| **`float-OS`** | 面向 x86_64 与 AArch64 的权能微内核，具备同步零拷贝 IPC 机制 | Rust, Zig, ASM | 核心架构设计与开发阶段 |
-| **`wave-forge`** | 零堆分配、SIMD 加速（AVX2 / NEON）的模块化 DSP 音频合成库 | Modern C++ (C++20) | Stable Core v0.8.4 |
-| **`tinytui`** | 具备亚毫秒级帧渲染性能的即时模式（Immediate-mode）终端界面引擎 | C99, POSIX / Win32 | 持续维护 |
-| **`ferro-raft`** | 面向隔离物理传感器节点的确定性日志结构分布式状态机 | Rust | 已在野外作业套件中实战部署 |
+| **`float-OS`** | 面向 x86_64 与 AArch64 的基于能力的微内核与同步零拷贝 IPC | Rust, Zig, 原生 ASM | 核心架构开发中 |
+| **`wave-forge`** | 零堆分配、SIMD 加速（AVX2 / NEON）模块化音频 DSP 合成库 | Modern C++ (C++20) | 稳定核心 v0.8.4 |
+| **`tinytui`** | 具备亚毫秒级帧调度性能的即时模式（Immediate-mode）终端交互引擎 | C99, POSIX / Win32 | 持续维护中 |
+| **`ferro-raft`** | 面向物理隔离（Air-gapped）传感器网络的确定性日志结构分布式状态机 | Rust | 现场部署运行中 |
 
 ---
 
 ## 🧰 技术栈矩阵
 
-### 系统与编程语言
-- **核心方言**：Rust（core 包、`no_std`、裸机嵌入式）、Modern C++（C++20/23、模板元编程、SIMD）、Zig（跨平台编译工具链、运行时胶水）、C99/C11（POSIX 接口、驱动层）。
-- **辅助与脚本**：POSIX Shell、Python 3（基准测试分析、绘图、信号仿真）、Lua 5.4（嵌入式引擎脚本）。
-- **汇编语言**：x86_64、AArch64、ARM Cortex-M（裸机引导代码、上下文切换原语）。
+### 系统与语言
+- **主力语言**: Rust（core, `no_std`, 嵌入式裸机）, Modern C++（C++20/23, 模板元编程, SIMD 指令集）, Zig（跨平台工具链, 运行时胶水）, C99/C11（POSIX 接口, 设备驱动层）。
+- **辅助与脚本**: POSIX Shell, Python 3（基准评测套件, 信号仿真, 遥测数据分析）, Lua 5.4。
+- **汇编语言**: x86_64, AArch64, ARM Cortex-M（裸机引导例程, 上下文切换原语）。
 
-### 内核、嵌入式与调试工具
-- **内核与运行时分析**：QEMU、GDB / LLDB、perf、valgrind、Linux eBPF、FreeBSD bhyve。
-- **编译器与构建链**：Clang/LLVM 工具链、GCC 交叉编译器、cargo、ninja、make。
-- **硬件与信号分析**：Saleae Logic Pro 16 逻辑分析仪、Siglent SDS1104X-E 示波器、JTAG/SWD 硬件调试器（ST-Link、J-Link）、I2C/SPI 总线嗅探。
-
-### 协议与存储架构
-- **传输协议**：零拷贝 Cap'n Proto、FlatBuffers、基于 CAN / UART / UDP 的自定义二进制帧。
-- **存储引擎**：日志结构合并树（LSM-Tree）、内存映射（mmap）环形缓冲区、Raw NVMe 裸块直接分发。
+### 内核、工具与硬件
+- **调试与性能剖析**: QEMU, GDB / LLDB, Linux perf, valgrind, Linux eBPF, FreeBSD bhyve。
+- **工具链与构建**: Clang/LLVM, GCC 交叉编译器, cargo, ninja, make。
+- **硬件与信号仪器**: Saleae Logic Pro 16 逻辑分析仪, Siglent SDS1104X-E 示波器, JTAG/SWD 探针, I2C/SPI/CAN 协议分析仪。
 
 ---
 
-## 🔬 工作台与主力硬件环境
+## 📬 交流与协作
 
-```text
-[硬件工作台配置]
-  ├── 主力笔记本  : ThinkPad T480 (Core i7-8650U, 64GB DDR4, 双 1TB NVMe, OpenBSD / Void Linux)
-  ├── 实验室台式机 : 定制 AMD Ryzen 9 7950X, 128GB ECC RAM, Debian 12 Stable (无污染编译农场)
-  ├── 音频硬件    : 定制 Eurorack 模块化合成器机架, Motu M4 DAC/ADC, Sennheiser HD600
-  └── 输入设备    : Corne 分体式人体工学键盘 (润滑 Boba U4T 轴体, 定制 QMK 固件)
-```
+欢迎就系统编程、音频 DSP 及高性能低级工程领域展开深入技术探讨、代码审查与缺陷反馈。
+
+- **Email**: `float.os.kernel@gmail.com`
+- **GPG 指纹**: `7E9B 4410 F302 89A1 55B8  0DC4 91D2 00A3 EF27 C418`
+- **IRC**: `aidan_v` on Libera.Chat (`#osdev`, `#rust-embedded`)
 
 ---
 
-## 📈 当前探索方向
-
-- 为 `float-OS` 的异步进程间权能握手编写严谨的 TLA+ 形式化规范。
-- 探索在资源极度受限的 Cortex-M4 目标机上针对复音波表振荡器的定点数（fixed-point）算术优化。
-- 试验不链接 libc、直接生成纯净独立 ELF 二进制文件的超轻量自举编译器后端。
-
----
-
-## 📬 交流与联系
-
-非常欢迎关于底层系统编程、音频工程与极简主义工具设计的技术探讨、代码审查和问题反馈。
-
-- **电子邮件**：`float.os.kernel@gmail.com`
-- **GPG 指纹**：`7E9B 4410 F302 89A1 55B8  0DC4 91D2 00A3 EF27 C418`
-- **IRC 频道**：`aidan_v` @ Libera.Chat (`#osdev`, `#rust-embedded`)
-- **补丁递交**：推荐通过 `git-send-email` 格式化补丁或 GitHub Pull Request。
-
----
-
-<sub>纯原生 Markdown 纯手工编写。无任何外部徽标徽章，无网络追踪脚本，100% 由人类亲自维护。</sub>
+<sub>无外部徽章，无追踪脚本，纯 Markdown 手工编写。100% 人工维护。</sub>
